@@ -1,0 +1,14 @@
+ Project Workflow Diagram (Conceptual)
+Input Image
+      ↓
+YOLOv8 Object Detection
+      ↓
+Classify Objects
+      ↓
+If Car → Detect Colour
+      ↓
+Draw Rectangle
+      ↓
+Count Cars & People
+      ↓
+Display Output
