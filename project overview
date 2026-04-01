@@ -1,0 +1,12 @@
+This project implements a Computer Vision-based traffic monitoring system that:
+Detects cars and people in an image.
+Identifies whether a detected car is blue.
+Draws:
+o🔴 Red rectangle for blue cars
+o🔵 Blue rectangle for other coloured cars
+o🟢 Green rectangle for people
+Counts the total number of:
+o Cars
+o People
+Displays the processed image with detection results.
+The system uses the YOLOv8 object detection model from Ultralytics and the COCO dataset class indexing.
