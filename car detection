@@ -1,0 +1,64 @@
+import cv2
+from ultralytics import YOLO
+import tkinter as tk
+from tkinter import filedialog
+from PIL import Image, ImageTk
+import numpy as np
+
+
+model = YOLO('yolov8n.pt')
+
+def process_image(image_path):
+    img = cv2.imread(image_path)
+    results = model(img)
+
+    car_count = 0
+    person_count = 0
+
+    for result in results:
+        for box in result.boxes:
+            class_id = int(box.cls[0])
+            xyxy = box.xyxy[0].cpu().numpy()
+            x1, y1, x2, y2 = map(int, xyxy)
+
+            
+            if class_id == 0: # 0 is person in COCO
+                person_count += 1
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2) # Green for people
+
+            # Detect Cars
+            elif class_id == 2: # 2 is car in COCO
+                car_count += 1
+                crop = img[y1:y2, x1:x2]
+
+                # --- Color Detection (Simple HSV) ---
+                hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+                lower_blue = np.array([100, 50, 50])
+                upper_blue = np.array([140, 255, 255])
+                mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+                if cv2.countNonZero(mask) > (crop.size * 0.1): # If 10% is blue
+                    color = (0, 0, 255) # Red Rectangle
+                else:
+                    color = (255, 0, 0) # Blue Rectangle
+
+                cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+
+    return img, car_count, person_count
+
+
+import matplotlib.pyplot as plt
+
+image_path = 'sample_car_person.jpg'
+processed_img, car_count, person_count = process_image(image_path)
+
+print(f"Cars detected: {car_count}")
+print(f"People detected: {person_count}")
+
+# Convert the processed image from OpenCV BGR to RGB for PIL and display
+processed_img_rgb = cv2.cvtColor(processed_img, cv2.COLOR_BGR2RGB)
+img_pil = Image.fromarray(processed_img_rgb)
+
+plt.imshow(img_pil)
+plt.axis('off')
+plt.show()
